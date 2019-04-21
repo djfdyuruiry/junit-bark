@@ -1,10 +1,10 @@
 {
   "name": "junit-bark",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "JUnit XML reporter for Alsatian",
   "main": "bin/junit-bark.js",
   "bin": {
-    "junit-bark": "junit-bark.js"
+    "junit-bark": "bin/unit-bark.js"
   },
   "files": [
     "README.md",
