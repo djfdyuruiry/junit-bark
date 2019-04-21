@@ -1,0 +1,36 @@
+{
+  "name": "junit-bark",
+  "version": "1.0.0",
+  "description": "JUnit XML reporter for Alsatian",
+  "main": "bin/junit-bark.js",
+  "bin": {
+    "junit-bark": "junit-bark.js"
+  },
+  "files": [
+    "README.md",
+    "LICENSE",
+    "bin/junit-bark.js"
+  ],
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/djfdyuruiry/junit-bark.git"
+  },
+  "keywords": [
+    "Alsatain",
+    "JUnit",
+    "TAP"
+  ],
+  "author": "Matthew Snoddy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/djfdyuruiry/junit-bark/issues"
+  },
+  "homepage": "https://github.com/djfdyuruiry/junit-bark#readme",
+  "dependencies": {
+    "events-to-array": "^1.1.2",
+    "junit-report-builder": "^1.3.2",
+    "tap-parser": "^9.3.2",
+    "tmp": "^0.1.0"
+  }
+}
