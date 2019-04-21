@@ -12,7 +12,7 @@ This tool fixes that problem by parsing the TAP output from Alsatian and writing
 
 ## How?
 
-This module uses `tap-parser` and `junit-report-builder` to stream test results from TAP into JUnit XML.
+This module streams test results from TAP and uses `junit-report-builder` to build JUnit XML.
 
 Given you have Alsatian installed, you can run:
 

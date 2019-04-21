@@ -1,27 +1,15 @@
 #!/usr/bin/env node
 const fs = require("fs")
 
-const eventsToArray = require("events-to-array")
+const getStdin = require("get-stdin")
 const junitReportBuilder = require("junit-report-builder")
-const TapParser = require('tap-parser')
 const tmp = require("tmp")
 
-const tapParser = new TapParser()
-const tapResults = eventsToArray(
-    tapParser, [
-        'pipe',
-        'unpipe',
-        'prefinish',
-        'finish',
-        'line',
-        'pass',
-        'fail',
-        'todo',
-        'skip',
-    ]
-)
+const resultRegex = new RegExp(/^[not]*\s*ok \d+ (.+)$/m);
 
-process.on("exit", () => {
+(async () => {
+    const tap = await getStdin()
+    const tapLines = tap.split(/\r?\n/).splice(2) // ignore TAP version & plan
     const junitBuilder = junitReportBuilder.newBuilder()
     const outputFile = tmp.fileSync()
 
@@ -29,16 +17,29 @@ process.on("exit", () => {
     let currentSuiteName
     let stdOut = ""
 
-    tapResults.forEach(result => {
-        let type = result[0]
-        let data = result[1]
+    tapLines.forEach(tapLine => {
+        tapLine = `${tapLine}\n`
 
+        let type = "extra"
+        let ok = false
+        let name = ""
+
+        // parse tap line
+        if (tapLine.startsWith("#")) {
+            type = "comment"
+        } else if (tapLine.match(resultRegex)) {
+            type = "result"
+            ok = tapLine.startsWith("ok")
+            name = tapLine.match(resultRegex)[1]
+        }
+
+        // add line as a suite, case or stdout line
         if (type === "comment") {
             // test suite
 
-            if (data.includes("# FIXTURE ")) {
+            if (tapLine.includes("# FIXTURE ")) {
                 // strip prefix and newline from comment to get suite name
-                currentSuiteName = data.replace("# FIXTURE ", "").replace(/\n/, "")
+                currentSuiteName = tapLine.replace("# FIXTURE ", "").replace(/\n/, "")
 
                 currentSuite = junitBuilder.testSuite().name(currentSuiteName)
             }
@@ -46,16 +47,16 @@ process.on("exit", () => {
         else if (type === "extra") {
             // test case output
 
-            stdOut += data
+            stdOut += tapLine
         } else if (type === "result") {
             // test case result
 
             let testCase = currentSuite.testCase()
                 .className(currentSuiteName)
-                .name(data.name)
+                .name(name)
                 .standardOutput(stdOut)
 
-            if (!data.ok) {
+            if (!ok) {
                 testCase.failure()
             }
 
@@ -63,15 +64,14 @@ process.on("exit", () => {
         }
     });
 
+    // write to temp file because crappy API ¯\_(ツ)_/¯
     junitBuilder.writeTo(outputFile.name)
 
     console.log(
         // cleanup leading and trailing space before standard out CDATA
         fs.readFileSync(outputFile.name)
             .toString()
-            .replace(/<system-out>.*?<!\[CDATA\[/s, "<system-out><![CDATA[")
-            .replace(/\n\]\]>.*?<\/system-out>/s, "]]></system-out>")
+            .replace(/<system-out>.*?<!\[CDATA\[/gs, "<system-out><![CDATA[")
+            .replace(/\n\]\]>.*?<\/system-out>/gs, "]]></system-out>")
     )
-})
-
-process.stdin.pipe(tapParser)
+})()
