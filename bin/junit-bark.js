@@ -16,6 +16,7 @@ const resultRegex = new RegExp(/^[not]*\s*ok \d+ (.+)$/m);
     let currentSuite
     let currentSuiteName
     let stdOut = ""
+    let testCase
 
     tapLines.forEach(tapLine => {
         tapLine = `${tapLine}\n`
@@ -50,11 +51,14 @@ const resultRegex = new RegExp(/^[not]*\s*ok \d+ (.+)$/m);
             stdOut += tapLine
         } else if (type === "result") {
             // test case result
+            
+            if (testCase && (stdOut !== "")) {
+              testCase.standardOutput(stdOut)
+            }
 
-            let testCase = currentSuite.testCase()
+            testCase = currentSuite.testCase()
                 .className(currentSuiteName)
                 .name(name)
-                .standardOutput(stdOut)
 
             if (!ok) {
                 testCase.failure()
