@@ -1,0 +1,29 @@
+TAP version 13
+1..4
+# FIXTURE Some fixture
+I am some std out
+isn't life wonderful
+ok 1 Some test that passes
+Even more std out
+not ok 2 Some test that fails
+ ---
+ message: Expected values to be equal
+ severity: fail
+ data:
+   got: 'true'
+   expect: 'false'
+   details:
+     diff: "\e[31mfals\e[39m\e[32mtru\e[39me"
+ ...
+ok 3 Some other test that passes
+some text for the last test
+not ok 4 A test at the end that fails
+ ---
+ message: Expected values to be fun
+ severity: fail
+ data:
+   got: 'true'
+   expect: 'false'
+   details:
+     diff: "\e[31mfals\e[39m\e[32mtru\e[39me"
+ ...
