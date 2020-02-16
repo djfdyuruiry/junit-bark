@@ -9,7 +9,7 @@ const resultRegex = new RegExp(/^[not]*\s*ok \d+ (.+)$/m);
 
 (async () => {
     const tap = await getStdin()
-    const tapLines = tap.split(/\r?\n/).splice(2) // ignore TAP version & plan
+    const tapLines = tap.split(/\r?\n/)
     const junitBuilder = junitReportBuilder.newBuilder()
     const outputFile = tmp.fileSync()
 
@@ -20,9 +20,29 @@ const resultRegex = new RegExp(/^[not]*\s*ok \d+ (.+)$/m);
     let lastTestCaseStdOut
     let lastTestCaseFailed = false
     let readingErrorBlock = false
+    let tapVersionRead = false
+    let skipNextLine = true
 
     tapLines.forEach(tapLine => {
         tapLine = `${tapLine}\n`
+
+        if (!tapVersionRead && !tapLine.startsWith("TAP version ")) {
+            // have not seen the tap version yet, store lines
+            stdOut += tapLine
+
+            return
+        } else if (!tapVersionRead && tapLine.startsWith("TAP version ")) {
+            // found tap version, skip next line and begin processing
+            tapVersionRead = true
+            skipNextLine = true
+
+            return
+        }
+
+        if (skipNextLine) {
+            skipNextLine = false
+            return
+        }
 
         let type = "extra"
         let ok = false
