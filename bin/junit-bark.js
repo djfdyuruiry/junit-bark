@@ -1,16 +1,16 @@
 #!/usr/bin/env node
-const fs = require("fs")
+import fs from "fs"
 
-const getStdin = require("get-stdin")
-const junitReportBuilder = require("junit-report-builder")
-const tmp = require("tmp")
+import getStdin from "get-stdin"
+import builder from "junit-report-builder"
+import tmp from "tmp"
 
 const resultRegex = new RegExp(/^[not]*\s*ok \d+ (.+)$/m);
 
 (async () => {
     const tap = await getStdin()
     const tapLines = tap.split(/\r?\n/)
-    const junitBuilder = junitReportBuilder.newBuilder()
+    const junitBuilder = builder
     const outputFile = tmp.fileSync()
 
     let currentSuite
